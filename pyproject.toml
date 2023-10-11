@@ -2,7 +2,7 @@
 name = "pico-to-mqtt"
 version = "0.1.0"
 description = "emit mqtt messages for Lutron Caseta Pico remotes"
-authors = ["Dan Kulla<dan@dankulla.com>"]
+authors = ["Dan Kulla <dan@dankulla.com>"]
 readme = "README.md"
 packages = [{include = "pico_to_mqtt", from="src"}]
 
@@ -15,6 +15,14 @@ pylutron-caseta = {extras = ["cli"], version = "^0.18.3"}
 mypy = "^1.5.1"
 black = "^23.9.1"
 flake8 = "^6.1.0"
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.4.2"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
 
 [build-system]
 requires = ["poetry-core"]
