@@ -1,0 +1,45 @@
+{
+    "name": "pico_to_mqtt",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "app",
+    "workspaceFolder": "/workspace",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "editor.formatOnSave": true,
+                "python.analysis.extraPaths": [
+                    "/workspace/source"
+                ],
+                "python.defaultInterpreterPath": "/home/.venv/bin/python",
+                "python.formatting.blackPath": "/home/.venv/bin/black",
+                "python.formatting.provider": "black",
+                "python.languageServer": "Pylance",
+                "python.linting.enabled": true,
+                "python.linting.mypyPath": "/home/.venv/bin/mypy",
+                "python.linting.pylintEnabled": true,
+                "python.linting.pylintPath": "/home/.venv/bin/pylint",
+                "python.testing.pytestPath": "/usr/local/py-utils/bin/pytest",
+                "isort.path": [
+                    "/usr/local/py-utils/bin/isort"
+                ],
+                "rewrap.wrappingColumn": 88,
+                "[python]": {
+                    "editor.codeActionsOnSave": {
+                        "source.organizeImports": true
+                    }
+                }
+            },
+            "extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-python.mypy-type-checker",
+				"ms-python.black-formatter",
+				"ms-azuretools.vscode-docker",
+				"tamasfe.even-better-toml"
+			]
+        }
+    },
+    "forwardPorts": [],
+    "postCreateCommand": "VIRTUAL_ENV=\"/home/.venv\" PATH=\"$VIRTUAL_ENV/bin:$PATH\" poetry install --no-interaction --no-ansi --with dev",
+    "remoteUser": "vscode"
+}
