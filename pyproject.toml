@@ -4,21 +4,21 @@ version = "0.1.0"
 description = "emit mqtt messages for Lutron Caseta Pico remotes"
 authors = ["Dan Kulla <dan@dankulla.com>"]
 readme = "README.md"
-packages = [{include = "pico_to_mqtt", from="src"}]
+packages = [{ include = "pico_to_mqtt", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-pylutron-caseta = {extras = ["cli"], version = "^0.18.3"}
+pylutron-caseta = { extras = ["cli"], version = "^0.18.3" }
 
 
-[tool.poetry.group.dev.dependencies]
-mypy = "^1.5.1"
-black = "^23.9.1"
-flake8 = "^6.1.0"
+# [tool.poetry.group.dev.dependencies]
+# mypy = "^1.5.1"
+# black = "^23.9.1"
+# flake8 = "^6.1.0"
 
 
-[tool.poetry.group.test.dependencies]
-pytest = "^7.4.2"
+# [tool.poetry.group.test.dependencies]
+# pytest = "^7.4.2"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

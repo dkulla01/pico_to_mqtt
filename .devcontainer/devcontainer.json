@@ -10,19 +10,15 @@
                 "python.analysis.extraPaths": [
                     "/workspace/source"
                 ],
-                "python.defaultInterpreterPath": "/home/.venv/bin/python",
-                "python.formatting.blackPath": "/home/.venv/bin/black",
-                "python.formatting.provider": "black",
+                "editor.defaultFormatter": "ms-python.black-formatter",
+                "python.defaultInterpreterPath": "/workspace/.venv/bin/python",
                 "python.languageServer": "Pylance",
-                "python.linting.enabled": true,
-                "python.linting.mypyPath": "/home/.venv/bin/mypy",
-                "python.linting.pylintEnabled": true,
-                "python.linting.pylintPath": "/home/.venv/bin/pylint",
                 "python.testing.pytestPath": "/usr/local/py-utils/bin/pytest",
                 "isort.path": [
                     "/usr/local/py-utils/bin/isort"
                 ],
                 "rewrap.wrappingColumn": 88,
+                "python.analysis.typeCheckingMode": "strict",
                 "[python]": {
                     "editor.codeActionsOnSave": {
                         "source.organizeImports": true
@@ -32,14 +28,14 @@
             "extensions": [
 				"ms-python.python",
 				"ms-python.vscode-pylance",
-				"ms-python.mypy-type-checker",
 				"ms-python.black-formatter",
 				"ms-azuretools.vscode-docker",
-				"tamasfe.even-better-toml"
+				"tamasfe.even-better-toml",
+				"ms-python.pylint"
 			]
         }
     },
     "forwardPorts": [],
-    "postCreateCommand": "VIRTUAL_ENV=\"/home/.venv\" PATH=\"$VIRTUAL_ENV/bin:$PATH\" poetry install --no-interaction --no-ansi --with dev",
+    "postCreateCommand": "bash ./.devcontainer/post-install.sh",
     "remoteUser": "vscode"
 }

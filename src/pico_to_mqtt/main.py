@@ -1,5 +1,5 @@
 def return_three_for_pytest_flow_check() -> int:
-    return 3
+    return "three"
 
 
 def print_hello_world() -> None:
