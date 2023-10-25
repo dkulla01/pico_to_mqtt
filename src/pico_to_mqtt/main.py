@@ -1,4 +1,5 @@
 def return_three_for_pytest_flow_check() -> int:
+    somevar = "I am not used anywhere"
     return 3
 
 
