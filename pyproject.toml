@@ -7,18 +7,13 @@ readme = "README.md"
 packages = [{ include = "pico_to_mqtt", from = "src" }]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
 pylutron-caseta = { extras = ["cli"], version = "^0.18.3" }
 
 
-# [tool.poetry.group.dev.dependencies]
-# mypy = "^1.5.1"
-# black = "^23.9.1"
-# flake8 = "^6.1.0"
-
-
-# [tool.poetry.group.test.dependencies]
-# pytest = "^7.4.2"
+[tool.poetry.group.dev.dependencies]
+pyright = "^1.1.332"
+ruff = "^0.1.1"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

@@ -10,28 +10,25 @@
                 "python.analysis.extraPaths": [
                     "/workspace/source"
                 ],
-                "editor.defaultFormatter": "ms-python.black-formatter",
+                "editor.defaultFormatter": "charliermarsh.ruff",
                 "python.defaultInterpreterPath": "/workspace/.venv/bin/python",
                 "python.languageServer": "Pylance",
-                "python.testing.pytestPath": "/usr/local/py-utils/bin/pytest",
-                "isort.path": [
-                    "/usr/local/py-utils/bin/isort"
-                ],
+                "python.testing.pytestPath": "/workspace/.venv/bin/pytest",
                 "rewrap.wrappingColumn": 88,
                 "python.analysis.typeCheckingMode": "strict",
                 "[python]": {
                     "editor.codeActionsOnSave": {
                         "source.organizeImports": true
                     }
-                }
+                },
+                "ruff.enableExperimentalFormatter": true
             },
             "extensions": [
 				"ms-python.python",
 				"ms-python.vscode-pylance",
-				"ms-python.black-formatter",
 				"ms-azuretools.vscode-docker",
 				"tamasfe.even-better-toml",
-				"ms-python.pylint"
+				"charliermarsh.ruff"
 			]
         }
     },
