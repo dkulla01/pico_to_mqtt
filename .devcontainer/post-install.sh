@@ -1,10 +1,12 @@
 #! /usr/bin/env bash
 
-WORKSPACE_DIR="$(pwd)"
 
-poetry config cache-dir "${WORKSPACE_DIR}/.cache"
-poetry config virtualenvs.in-project true
+POETRY_ROOT_DIR="$HOME/.poetry-root"
+mkdir "$POETRY_ROOT_DIR"
+
+poetry config cache-dir "${POETRY_ROOT_DIR}/.cache"
+poetry config virtualenvs.in-project false
 
 poetry install
 
-echo 'done installing dependencies!'
+echo 'Done installing dependencies!'
