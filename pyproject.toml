@@ -9,6 +9,8 @@ packages = [{ include = "pico_to_mqtt", from = "src" }]
 [tool.poetry.dependencies]
 python = "^3.12"
 pylutron-caseta = { extras = ["cli"], version = "^0.18.3" }
+dynaconf = "^3.2.3"
+attrs = "^23.1.0"
 
 
 [tool.poetry.group.dev.dependencies]

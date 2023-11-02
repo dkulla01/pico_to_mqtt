@@ -8,7 +8,8 @@ services:
         PYTHON_VERSION: "3.12"
         NODE_VERSION: "none"
     volumes:
-      - ..:/workspace:cached
+      - ..:/workspace
+      - ~:/host-home-folder:ro
     command: sleep infinity
     user: vscode
     env_file: .env
