@@ -9,7 +9,7 @@ services:
         NODE_VERSION: "none"
     volumes:
       - ..:/workspace
-      - ~:/host-home-folder:ro
+      - ~/.config:/home/vscode/.host-config:ro
     command: sleep infinity
     user: vscode
     env_file: .env

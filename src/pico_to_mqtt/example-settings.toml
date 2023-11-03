@@ -1,0 +1,13 @@
+# for whatever reason, typed-settings converts underscores to dashes
+[pico-to-mqtt.mqtt-config]
+path_to_mqtt_client_cert =  "$HOME/.host-config/mqtt-ssl/client.crt"
+path_to_mqtt_client_key =  "$HOME/.host-config/mqtt-ssl/client.key"
+path_to_mqtt_client_ca =  "$HOME/.host-config/mqtt-ssl/pihome-ca.pem"
+mqtt_hostname = "mosquitto-broker.local"
+mqtt_port = 8883
+
+[pico-to-mqtt.caseta-config]
+caseta_bridge_hostname = "caseta-bridge.local"
+path_to_caseta_client_cert = "$HOME/.host-config/pylutron_caseta/caseta.run.crt"
+path_to_caseta_client_key = "$HOME/.host-config/pylutron_caseta/caseta.run.key"
+path_to_caseta_client_ca= "$HOME/.host-config/pylutron_caseta/caseta.run-bridge.crt"

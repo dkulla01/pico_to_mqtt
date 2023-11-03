@@ -8,12 +8,12 @@
             "settings": {
                 "editor.formatOnSave": true,
                 "python.analysis.extraPaths": [
-                    "/workspace/source"
                 ],
                 "editor.defaultFormatter": "charliermarsh.ruff",
-                "python.defaultInterpreterPath": "/workspace/.venv/bin/python",
+                "extensions.autoUpdate": false,
+                "python.defaultInterpreterPath": "/home/vscode/.poetry-root/.cache/virtualenvs/pico-to-mqtt/bin/python",
                 "python.languageServer": "Pylance",
-                "python.testing.pytestPath": "/workspace/.venv/bin/pytest",
+                "python.testing.pytestPath": "/home/vscode/.poetry-root/.cache/virtualenvs/pico-to-mqtt/bin/pytest",
                 "rewrap.wrappingColumn": 88,
                 "python.analysis.typeCheckingMode": "strict",
                 "[python]": {
@@ -24,11 +24,13 @@
             },
             "extensions": [
 				"ms-python.python",
+				// "ms-python.vscode-pylance@2023.10.40",
 				"ms-python.vscode-pylance",
 				"ms-azuretools.vscode-docker",
 				"tamasfe.even-better-toml",
 				"charliermarsh.ruff",
-				"github.vscode-github-actions"
+				"github.vscode-github-actions",
+				"timonwong.shellcheck"
 			]
         }
     },
