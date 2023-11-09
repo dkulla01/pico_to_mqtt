@@ -14,9 +14,10 @@ typed-settings = {version = "^23.1.0", extras = ["attrs", "cattrs"]}
 
 
 [tool.poetry.group.dev.dependencies]
-pyright = "^1.1.332"
 ruff = "^0.1.1"
 pytest = "^7.4.3"
+pytest-asyncio = "^0.21.1"
+pyright = "^1.1.335"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

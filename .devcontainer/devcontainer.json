@@ -7,8 +7,8 @@
         "vscode": {
             "settings": {
                 "editor.formatOnSave": true,
-                "python.analysis.extraPaths": [
-                ],
+                // "python.analysis.extraPaths": [
+                // ],
                 "editor.defaultFormatter": "charliermarsh.ruff",
                 "extensions.autoUpdate": false,
                 "python.defaultInterpreterPath": "/home/vscode/.poetry-root/.cache/virtualenvs/pico-to-mqtt/bin/python",
@@ -16,6 +16,8 @@
                 "python.testing.pytestPath": "/home/vscode/.poetry-root/.cache/virtualenvs/pico-to-mqtt/bin/pytest",
                 "rewrap.wrappingColumn": 88,
                 "python.analysis.typeCheckingMode": "strict",
+                "python.analysis.logLevel": "Trace",
+                "python.analysis.stubPath": "typings",
                 "[python]": {
                     "editor.codeActionsOnSave": {
                         "source.organizeImports": true
