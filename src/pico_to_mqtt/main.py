@@ -3,6 +3,7 @@ import logging
 import os
 import signal
 import sys
+from typing import Any, Mapping, Optional
 
 from pico_to_mqtt.caseta.topology import Topology, default_bridge
 from pico_to_mqtt.config import AllConfig, get_config
@@ -31,8 +32,14 @@ async def consume_pico_messages(topology: Topology):
     LOGGER.info("yay we've connected")
 
 
-async def shutdown(signal: signal.Signals, loop: asyncio.AbstractEventLoop):
-    LOGGER.info("received termination signal %s. Starting to shut down.", signal.name)
+async def shutdown(
+    loop: asyncio.AbstractEventLoop, signal: Optional[signal.Signals] = None
+):
+    if signal:
+        LOGGER.info(
+            "received termination signal %s. Starting to shut down.",
+            signal.name,
+        )
     LOGGER.info("cancelling outstanding tasks")
     tasks = [task for task in asyncio.all_tasks() if task is not asyncio.current_task()]
     for task in tasks:
@@ -41,6 +48,13 @@ async def shutdown(signal: signal.Signals, loop: asyncio.AbstractEventLoop):
     LOGGER.info("waiting for %d tasks to be cancelled", len(tasks))
     await asyncio.gather(*tasks, return_exceptions=True)
     loop.stop()
+
+
+def handle_exception(loop: asyncio.AbstractEventLoop, context: Mapping[str, Any]):
+    message = context.get("exception", context["message"])
+    LOGGER.error("caught exception %s", message)
+    LOGGER.info("shutting down now")
+    asyncio.create_task(shutdown(loop))
 
 
 async def main_loop(configuration: AllConfig):
@@ -58,8 +72,9 @@ def main():
     for termination_signal in _TERMINATION_SIGNALS:
         loop.add_signal_handler(
             termination_signal,
-            lambda s=termination_signal: asyncio.create_task(shutdown(s, loop)),
+            lambda s=termination_signal: asyncio.create_task(shutdown(loop, signal=s)),
         )
+    loop.set_exception_handler(handle_exception)
     try:
         loop.create_task(main_loop(configuration))
         loop.run_forever()
