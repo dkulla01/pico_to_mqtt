@@ -1,6 +1,5 @@
 import asyncio
 from asyncio import Condition
-from typing import Any
 from unittest.mock import AsyncMock, Mock
 
 import pytest
@@ -64,12 +63,13 @@ async def test_smartbridge_connection_errors_notify_the_shutdown_condition(
     mock_smartbridge.connect = mock_connect_with_exception
     topology = Topology(mock_smartbridge, shutdown_condition)
 
-    # run the topology connection task -- which we know will have an exception thrown in it --
-    # in a different task. We want to see that other task notify us in this task, where we'll
-    # wait for the shutdown condition to be notified
+    # run the topology connection task -- which we know will have an exception thrown
+    # in it -- in a different task. We want to see that other task notify us in this
+    # task, where we'll wait for the shutdown condition to be notified
     asyncio.create_task(topology.connect())
 
-    # the shutdown_condition gets notified immediately, so waiting 500ms is quite generous
+    # the shutdown_condition gets notified immediately, so waiting 500ms is
+    # quite generous
     async with asyncio.timeout(0.5):
         async with shutdown_condition:
             assert await shutdown_condition.wait()
