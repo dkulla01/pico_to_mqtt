@@ -1,6 +1,4 @@
-from datetime import datetime, timedelta
-from typing import Any
-from unittest.mock import MagicMock
+from datetime import timedelta
 
 import pytest
 from pico_to_mqtt.caseta.button_watcher import ButtonHistory
@@ -9,7 +7,6 @@ from pico_to_mqtt.caseta.model import (
     ButtonState,
     IllegalStateTransitionError,
 )
-from pytest_mock import MockerFixture
 
 
 @pytest.mark.asyncio
