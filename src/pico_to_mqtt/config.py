@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import timedelta
 from pathlib import Path
 
 import typed_settings as ts
@@ -13,7 +14,7 @@ class AllConfig:
     mqtt_config: MqttConfig
 
 
-@ts.settings
+@ts.settings(frozen=True)
 class CasetaConfig:
     caseta_bridge_hostname: str
     path_to_caseta_client_cert: Path
@@ -21,7 +22,14 @@ class CasetaConfig:
     path_to_caseta_client_ca: Path
 
 
-@ts.settings
+@ts.settings(frozen=True)
+class ButtonWatcherConfig:
+    button_watcher_double_click_window: timedelta = timedelta(milliseconds=500)
+    button_watcher_sleep_duration: timedelta = timedelta(milliseconds=250)
+    button_watcher_max_duration: timedelta = timedelta(seconds=5)
+
+
+@ts.settings(frozen=True)
 class MqttConfig:
     path_to_mqtt_client_cert: Path
     path_to_mqtt_client_key: Path

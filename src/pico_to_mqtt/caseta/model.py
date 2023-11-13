@@ -73,7 +73,6 @@ class ButtonState(Enum):
 @attrs.frozen
 class PicoThreeButtonRaiseLower:
     TYPE: ClassVar[str] = "Pico3ButtonRaiseLower"
-    
     device_id: int
     name: str
     buttons_by_button_id: Mapping[int, ButtonId]
