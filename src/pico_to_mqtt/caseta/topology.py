@@ -29,7 +29,15 @@ class Topology:
 
     async def connect(self) -> None:
         LOGGER.info("connecting to caseta bridge")
-        await self._caseta_bridge.connect()
+        try:
+            await self._caseta_bridge.connect()
+        except Exception as e:
+            LOGGER.error(
+                "there was a problem connecting to the caseta smartbridge: %s", e
+            )
+            async with self._shutdown_condition:
+                self._shutdown_condition.notify()
+            raise e
 
         all_buttons = self._caseta_bridge.get_buttons()
         all_devices = self._caseta_bridge.get_devices()
