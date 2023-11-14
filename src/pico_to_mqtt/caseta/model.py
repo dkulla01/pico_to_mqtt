@@ -1,5 +1,5 @@
-from enum import Enum
-from typing import ClassVar, Mapping
+from enum import Enum, StrEnum
+from typing import Iterable, Mapping
 
 import attrs
 
@@ -70,9 +70,28 @@ class ButtonState(Enum):
         }
 
 
+class PicoRemoteType(StrEnum):
+    PICO_THREE_BUTTON_RAISE_LOWER = "Pico3ButtonRaiseLower"
+
+    def as_str(self) -> str:
+        return self.value
+
+    @classmethod
+    def from_str(cls, str_literal: str):
+        match str_literal:
+            case cls.PICO_THREE_BUTTON_RAISE_LOWER.value:
+                return cls.PICO_THREE_BUTTON_RAISE_LOWER
+            case _:
+                raise LookupError(f"{str_literal} is not a valid pico remote type")
+
+    @classmethod
+    def values(cls) -> Iterable[str]:
+        return {member.value for member in cls}
+
+
 @attrs.frozen
-class PicoThreeButtonRaiseLower:
-    TYPE: ClassVar[str] = "Pico3ButtonRaiseLower"
+class PicoRemote:
     device_id: int
+    type: PicoRemoteType
     name: str
     buttons_by_button_id: Mapping[int, ButtonId]

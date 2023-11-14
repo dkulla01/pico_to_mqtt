@@ -24,9 +24,9 @@ class CasetaConfig:
 
 @ts.settings(frozen=True)
 class ButtonWatcherConfig:
-    button_watcher_double_click_window: timedelta = timedelta(milliseconds=500)
-    button_watcher_sleep_duration: timedelta = timedelta(milliseconds=250)
-    button_watcher_max_duration: timedelta = timedelta(seconds=5)
+    double_click_window: timedelta = timedelta(milliseconds=500)
+    sleep_duration: timedelta = timedelta(milliseconds=250)
+    max_duration: timedelta = timedelta(seconds=5)
 
 
 @ts.settings(frozen=True)

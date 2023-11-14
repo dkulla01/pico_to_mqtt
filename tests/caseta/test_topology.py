@@ -3,7 +3,7 @@ from asyncio import Condition
 from unittest.mock import AsyncMock, Mock
 
 import pytest
-from pico_to_mqtt.caseta.model import PicoThreeButtonRaiseLower
+from pico_to_mqtt.caseta.model import PicoRemoteType
 from pico_to_mqtt.caseta.topology import Topology
 from pylutron_caseta.smartbridge import Smartbridge
 from pytest_mock import MockerFixture
@@ -12,7 +12,7 @@ _SMARTBRIDGE_DEVICES = {
     "2": {
         "device_id": "2",
         "name": "test_remote",
-        "type": PicoThreeButtonRaiseLower.TYPE,
+        "type": PicoRemoteType.PICO_THREE_BUTTON_RAISE_LOWER.value,
     },
     "1": {"device_id": "1", "name": "Smart Bridge", "type": "SmartBridge"},
 }

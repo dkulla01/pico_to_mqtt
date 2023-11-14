@@ -4,7 +4,7 @@ from asyncio import Condition
 
 from pylutron_caseta.smartbridge import Smartbridge
 
-from pico_to_mqtt.caseta.model import ButtonId, PicoThreeButtonRaiseLower
+from pico_to_mqtt.caseta.model import ButtonId, PicoRemote, PicoRemoteType
 from pico_to_mqtt.config import CasetaConfig
 
 LOGGER = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ class Topology:
     ) -> None:
         self._caseta_bridge: Smartbridge = caseta_bridge
         self._shutdown_condition = shutdown_condition
-        self._remotes_by_id: dict[int, PicoThreeButtonRaiseLower] = {}
+        self._remotes_by_id: dict[int, PicoRemote] = {}
 
     async def connect(self) -> None:
         LOGGER.info("connecting to caseta bridge")
@@ -62,9 +62,10 @@ class Topology:
 
             device_name = device["name"].removesuffix("_Pico")
             device_id_as_int = int(device_id)
-            if device["type"] == PicoThreeButtonRaiseLower.TYPE:
-                self._remotes_by_id[device_id_as_int] = PicoThreeButtonRaiseLower(
-                    device_id_as_int, device_name, buttons_by_id
+            if device["type"] in PicoRemoteType.values():
+                device_type = PicoRemoteType.from_str(device["type"])
+                self._remotes_by_id[device_id_as_int] = PicoRemote(
+                    device_id_as_int, device_type, device_name, buttons_by_id
                 )
 
             else:
