@@ -15,6 +15,7 @@ from pico_to_mqtt.caseta.model import (
     PicoRemote,
 )
 from pico_to_mqtt.config import ButtonWatcherConfig
+from pico_to_mqtt.event_handler import ButtonEvent, CasetaEvent, EventHandler
 
 LOGGER = logging.getLogger(__name__)
 
@@ -40,6 +41,7 @@ class ButtonHistory:
         self._tracking_started_at: Optional[datetime] = None
         self.is_finished: bool = False
         self._button_watcher_timeout = button_watcher_timeout
+        self._current_time_provider = current_time_provider
 
     async def increment(self, button_action: ButtonAction) -> None:
         async with self.mutex_locked_button_state.mutex:
@@ -51,14 +53,12 @@ class ButtonHistory:
                     f"button action of {button_action}"
                 )
             if self.mutex_locked_button_state.state == ButtonState.NOT_PRESSED:
-                self._tracking_started_at = datetime.now()
+                self._tracking_started_at = self._current_time_provider()
             self.mutex_locked_button_state.state = (
                 self.mutex_locked_button_state.state.next_state()
             )
 
-    @property
-    def is_timed_out(self) -> bool:
-        now = datetime.now()
+    def is_timed_out(self, now: datetime) -> bool:
         return (
             self._tracking_started_at is not None
             and (now - self._tracking_started_at) > self._button_watcher_timeout
@@ -71,11 +71,13 @@ class ButtonWatcher:
         pico_remote: PicoRemote,
         button_id: ButtonId,
         button_watcher_config: ButtonWatcherConfig,
+        event_handler: EventHandler,
         current_instant_provider: Callable[[], datetime] = datetime.now,
     ) -> None:
         self._pico_remote = pico_remote
         self._button_id = button_id
         self._button_watcher_config = button_watcher_config
+        self._event_handler = event_handler
         self._current_instant_provider = current_instant_provider
         self._button_history = ButtonHistory(
             button_watcher_config.max_duration,
@@ -130,6 +132,13 @@ class ButtonWatcher:
             if current_state == ButtonState.FIRST_PRESS_AND_FIRST_RELEASE:
                 LOGGER.debug("%s a single press has completed", self.button_log_prefix)
                 button_history.is_finished = True
+                await self._event_handler.handle_event(
+                    CasetaEvent(
+                        self._pico_remote,
+                        self._button_id,
+                        ButtonEvent.SINGLE_PRESS_COMPLETED,
+                    )
+                )
                 return
             elif current_state == ButtonState.DOUBLE_PRESS_FINISHED:
                 LOGGER.debug("%s: A double press has completed", self.button_log_prefix)
@@ -139,6 +148,13 @@ class ButtonWatcher:
                 LOGGER.debug(
                     "%s: A long press has started but not completed",
                     self.button_log_prefix,
+                )
+                await self._event_handler.handle_event(
+                    CasetaEvent(
+                        self._pico_remote,
+                        self._button_id,
+                        ButtonEvent.LONG_PRESS_ONGOING,
+                    )
                 )
             else:
                 LOGGER.debug(
@@ -169,6 +185,9 @@ class ButtonWatcher:
                     self.button_log_prefix,
                     current_state,
                 )
+
+    async def increment_history(self, button_action: ButtonAction):
+        await self._button_history.increment(button_action)
 
 
 # class ButtonTracker:

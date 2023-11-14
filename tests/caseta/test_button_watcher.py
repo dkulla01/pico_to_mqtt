@@ -1,12 +1,21 @@
+import datetime
 from datetime import timedelta
+from typing import Callable
+from unittest.mock import AsyncMock, Mock
 
+import attr
 import pytest
-from pico_to_mqtt.caseta.button_watcher import ButtonHistory
+from pico_to_mqtt.caseta.button_watcher import ButtonHistory, ButtonWatcher
 from pico_to_mqtt.caseta.model import (
     ButtonAction,
+    ButtonId,
     ButtonState,
     IllegalStateTransitionError,
+    PicoRemote,
+    PicoRemoteType,
 )
+from pico_to_mqtt.config import ButtonWatcherConfig
+from pico_to_mqtt.event_handler import ButtonEvent, CasetaEvent, EventHandler
 
 
 @pytest.mark.asyncio
@@ -52,9 +61,113 @@ async def test_button_history_increment_raises_exception_for_invalid_increments(
         await button_history.increment(ButtonAction.RELEASE)
 
 
+@pytest.fixture
+def january_first_midnight() -> datetime.datetime:
+    return datetime.datetime.fromisoformat("2023-01-01T00:00:00Z")
+
+
 @pytest.mark.asyncio
-async def test_button_history_reports_timeout_when_timeout_exceeded():
-    negative_timedelta_timeout_window = timedelta(seconds=-1)
-    button_history = ButtonHistory(negative_timedelta_timeout_window)
+async def test_button_history_reports_timeout_when_timeout_exceeded(
+    january_first_midnight: datetime.datetime
+):
+    timeout = timedelta(seconds=1)
+    longer_than_timeout = timeout * 2
+
+    now_provider: Callable[[], datetime.datetime] = Mock(
+        return_value=january_first_midnight
+    )
+    button_history = ButtonHistory(timeout, now_provider)
     await button_history.increment(ButtonAction.PRESS)
-    assert button_history.is_timed_out
+    assert button_history.is_timed_out(january_first_midnight + longer_than_timeout)
+
+
+@pytest.fixture
+def example_pico_remote() -> PicoRemote:
+    buttons_by_button_id = {
+        1: ButtonId.POWER_ON,
+        2: ButtonId.POWER_OFF,
+        3: ButtonId.INCREASE,
+        4: ButtonId.DECREASE,
+        5: ButtonId.FAVORITE,
+    }
+    return PicoRemote(
+        99,
+        PicoRemoteType.PICO_THREE_BUTTON_RAISE_LOWER,
+        "some_test_remote",
+        buttons_by_button_id,
+    )
+
+
+@pytest.fixture
+def example_button_watcher_config():
+    return ButtonWatcherConfig()
+
+
+@pytest.fixture
+def example_button_id():
+    return ButtonId.POWER_ON
+
+
+@pytest.fixture
+def example_event_handler():
+    return Mock(EventHandler)
+
+
+@pytest.fixture
+def example_button_watcher(
+    january_first_midnight: datetime.datetime,
+    example_pico_remote: PicoRemote,
+    example_button_watcher_config: ButtonWatcherConfig,
+    example_button_id: ButtonId,
+    example_event_handler: EventHandler,
+) -> ButtonWatcher:
+    return ButtonWatcher(
+        example_pico_remote,
+        example_button_id,
+        example_button_watcher_config,
+        example_event_handler,
+        lambda: january_first_midnight,
+    )
+
+
+@pytest.fixture
+def expected_caseta_event_scaffold(
+    example_pico_remote: PicoRemote, example_button_id: ButtonId
+) -> CasetaEvent:
+    return CasetaEvent(
+        example_pico_remote, example_button_id, ButtonEvent.SINGLE_PRESS_COMPLETED
+    )
+
+
+@pytest.mark.asyncio
+async def test_initial_button_watcher_checkpoint_sees_long_press_started(
+    example_button_watcher: ButtonWatcher,
+    example_event_handler: EventHandler,
+    expected_caseta_event_scaffold: CasetaEvent,
+):
+    example_event_handler.handle_event = AsyncMock()
+
+    await example_button_watcher.increment_history(ButtonAction.PRESS)
+    await example_button_watcher._handle_initial_tracking_checkpoint()  # pyright: ignore[reportPrivateUsage]
+    expected_event = attr.evolve(
+        expected_caseta_event_scaffold, button_event=ButtonEvent.LONG_PRESS_ONGOING
+    )
+    example_event_handler.handle_event.assert_called_with(expected_event)
+
+
+@pytest.mark.asyncio
+async def test_initial_button_watcher_checkpoint_sees_single_click(
+    example_button_watcher: ButtonWatcher,
+    example_event_handler: EventHandler,
+    expected_caseta_event_scaffold: CasetaEvent,
+):
+    example_event_handler.handle_event = AsyncMock()
+
+    await example_button_watcher.increment_history(ButtonAction.PRESS)
+    await example_button_watcher.increment_history(ButtonAction.RELEASE)
+
+    await example_button_watcher._handle_initial_tracking_checkpoint()  # pyright: ignore[reportPrivateUsage]
+    expected_event = attr.evolve(
+        expected_caseta_event_scaffold, button_event=ButtonEvent.SINGLE_PRESS_COMPLETED
+    )
+    example_event_handler.handle_event.assert_called_with(expected_event)
