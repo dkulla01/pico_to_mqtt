@@ -113,7 +113,7 @@ class ButtonWatcher:
                 self._button_watcher_config.sleep_duration.total_seconds()
             )
 
-            await self._handle_remaining_tracking_checkpoints()
+            await self._handle_followup_tracking_checkpoints()
             if button_history.is_finished:
                 return
         button_history.is_finished = True
@@ -170,21 +170,42 @@ class ButtonWatcher:
                     current_state,
                 )
 
-    async def _handle_remaining_tracking_checkpoints(self):
+    async def _handle_followup_tracking_checkpoints(self):
         async with self._button_history.mutex_locked_button_state.mutex:
             current_state = self._button_history.mutex_locked_button_state.state
             if current_state == ButtonState.FIRST_PRESS_AND_FIRST_RELEASE:
                 LOGGER.debug("%s a long press has completed", self.button_log_prefix)
                 self._button_history.is_finished = True
+                await self._event_handler.handle_event(
+                    CasetaEvent(
+                        self._pico_remote,
+                        self._button_id,
+                        ButtonEvent.LONG_PRESS_COMPLETED,
+                    )
+                )
                 return
             elif current_state == ButtonState.DOUBLE_PRESS_FINISHED:
                 LOGGER.debug("%s: A double press has completed", self.button_log_prefix)
                 self._button_history.is_finished = True
+                await self._event_handler.handle_event(
+                    CasetaEvent(
+                        self._pico_remote,
+                        self._button_id,
+                        ButtonEvent.DOUBLE_PRESS_COMPLETED,
+                    )
+                )
                 return
             elif current_state == ButtonState.FIRST_PRESS_AWAITING_RELEASE:
                 LOGGER.debug(
                     "%s: A long press is still ongoing",
                     self.button_log_prefix,
+                )
+                await self._event_handler.handle_event(
+                    CasetaEvent(
+                        self._pico_remote,
+                        self._button_id,
+                        ButtonEvent.LONG_PRESS_ONGOING,
+                    )
                 )
             else:
                 LOGGER.debug(
