@@ -1,11 +1,15 @@
-from datetime import timedelta
 import datetime
+from datetime import timedelta
 from typing import Callable
 from unittest.mock import Mock
-import pytest
 
+import pytest
 from pico_to_mqtt.caseta.button_watcher import ButtonHistory
-from pico_to_mqtt.caseta.model import ButtonAction, ButtonState, IllegalStateTransitionError
+from pico_to_mqtt.caseta.model import (
+    ButtonAction,
+    ButtonState,
+    IllegalStateTransitionError,
+)
 
 
 @pytest.mark.asyncio
