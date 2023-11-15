@@ -109,8 +109,15 @@ def example_button_id():
 
 
 @pytest.fixture
-def example_event_handler():
-    return Mock(EventHandler)
+def mock_handle_event_method():
+    return AsyncMock()
+
+
+@pytest.fixture
+def example_event_handler(mock_handle_event_method: AsyncMock):
+    event_handler = Mock(EventHandler)
+    event_handler.handle_event = mock_handle_event_method
+    return event_handler
 
 
 @pytest.fixture
@@ -142,27 +149,24 @@ def expected_caseta_event_scaffold(
 @pytest.mark.asyncio
 async def test_initial_button_watcher_checkpoint_sees_long_press_started(
     example_button_watcher: ButtonWatcher,
-    example_event_handler: EventHandler,
     expected_caseta_event_scaffold: CasetaEvent,
+    mock_handle_event_method: AsyncMock,
 ):
-    example_event_handler.handle_event = AsyncMock()
-
     await example_button_watcher.increment_history(ButtonAction.PRESS)
     await example_button_watcher._handle_initial_tracking_checkpoint()  # pyright: ignore[reportPrivateUsage]
     expected_event = attr.evolve(
         expected_caseta_event_scaffold, button_event=ButtonEvent.LONG_PRESS_ONGOING
     )
-    example_event_handler.handle_event.assert_called_with(expected_event)
+
+    mock_handle_event_method.assert_awaited_with(expected_event)
 
 
 @pytest.mark.asyncio
 async def test_initial_button_watcher_checkpoint_sees_single_click(
     example_button_watcher: ButtonWatcher,
-    example_event_handler: EventHandler,
     expected_caseta_event_scaffold: CasetaEvent,
+    mock_handle_event_method: AsyncMock,
 ):
-    example_event_handler.handle_event = AsyncMock()
-
     await example_button_watcher.increment_history(ButtonAction.PRESS)
     await example_button_watcher.increment_history(ButtonAction.RELEASE)
 
@@ -170,4 +174,42 @@ async def test_initial_button_watcher_checkpoint_sees_single_click(
     expected_event = attr.evolve(
         expected_caseta_event_scaffold, button_event=ButtonEvent.SINGLE_PRESS_COMPLETED
     )
-    example_event_handler.handle_event.assert_called_with(expected_event)
+    mock_handle_event_method.assert_awaited_with(expected_event)
+
+
+@pytest.mark.asyncio
+async def test_initial_checkpoint_does_not_emit_event_for_incomplete_double_click(
+    example_button_watcher: ButtonWatcher,
+    mock_handle_event_method: AsyncMock,
+):
+    # this is the first, complete click of a long double click
+    await example_button_watcher.increment_history(ButtonAction.PRESS)
+    await example_button_watcher.increment_history(ButtonAction.RELEASE)
+
+    # this is the second, incomplete click of a long double click.
+    # the button has been pressed a second time, but not yet released.
+    await example_button_watcher.increment_history(ButtonAction.PRESS)
+
+    await example_button_watcher._handle_initial_tracking_checkpoint()  # pyright: ignore[reportPrivateUsage]
+    mock_handle_event_method.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_initial_checkpoint_sees_double_click(
+    example_button_watcher: ButtonWatcher,
+    expected_caseta_event_scaffold: CasetaEvent,
+    mock_handle_event_method: AsyncMock,
+):
+    # this is the first, complete click of a double click
+    await example_button_watcher.increment_history(ButtonAction.PRESS)
+    await example_button_watcher.increment_history(ButtonAction.RELEASE)
+
+    # this is the second, complete click of a double click
+    await example_button_watcher.increment_history(ButtonAction.PRESS)
+    await example_button_watcher.increment_history(ButtonAction.RELEASE)
+
+    await example_button_watcher._handle_initial_tracking_checkpoint()  # pyright: ignore[reportPrivateUsage]
+    expected_event = attr.evolve(
+        expected_caseta_event_scaffold, button_event=ButtonEvent.DOUBLE_PRESS_COMPLETED
+    )
+    mock_handle_event_method.assert_awaited_with(expected_event)

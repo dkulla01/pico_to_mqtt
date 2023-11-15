@@ -143,6 +143,13 @@ class ButtonWatcher:
             elif current_state == ButtonState.DOUBLE_PRESS_FINISHED:
                 LOGGER.debug("%s: A double press has completed", self.button_log_prefix)
                 button_history.is_finished = True
+                await self._event_handler.handle_event(
+                    CasetaEvent(
+                        self._pico_remote,
+                        self._button_id,
+                        ButtonEvent.DOUBLE_PRESS_COMPLETED,
+                    )
+                )
                 return
             elif current_state == ButtonState.FIRST_PRESS_AWAITING_RELEASE:
                 LOGGER.debug(
