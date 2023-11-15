@@ -3,6 +3,7 @@ from asyncio import Condition
 from unittest.mock import AsyncMock, Mock
 
 import pytest
+from pico_to_mqtt.caseta.button_watcher import ButtonTracker
 from pico_to_mqtt.caseta.model import PicoRemoteType
 from pico_to_mqtt.caseta.topology import Topology
 from pylutron_caseta.smartbridge import Smartbridge
@@ -42,26 +43,35 @@ def mock_smartbridge(mocker: MockerFixture):
     return mock_smartbridge
 
 
+@pytest.fixture
+def mock_button_tracker(mocker: MockerFixture):
+    button_tracker = mocker.patch("pico_to_mqtt.caseta.topology.ButtonTracker")
+    button_tracker.button_event_callback = mocker.Mock()
+    return button_tracker
+
+
 @pytest.mark.asyncio
-async def test_topology_connects_to_smartbridge(mock_smartbridge: Smartbridge):
+async def test_topology_connects_to_smartbridge(
+    mock_smartbridge: Smartbridge, mock_button_tracker: ButtonTracker
+):
     mock_connect = AsyncMock()
     mock_smartbridge.connect = mock_connect
     shutdown_condition = Condition()
-    topology = Topology(mock_smartbridge, shutdown_condition)
+    topology = Topology(mock_smartbridge, shutdown_condition, mock_button_tracker)
     await topology.connect()
     mock_connect.assert_called_once()
 
 
 @pytest.mark.asyncio
 async def test_smartbridge_connection_errors_notify_the_shutdown_condition(
-    mock_smartbridge: Smartbridge
+    mock_smartbridge: Smartbridge, mock_button_tracker: ButtonTracker
 ):
     shutdown_condition = Condition()
     mock_connect_with_exception = AsyncMock(
         side_effect=Exception("Test that the topology responds to exceptions correctly")
     )
     mock_smartbridge.connect = mock_connect_with_exception
-    topology = Topology(mock_smartbridge, shutdown_condition)
+    topology = Topology(mock_smartbridge, shutdown_condition, mock_button_tracker)
 
     # run the topology connection task -- which we know will have an exception thrown
     # in it -- in a different task. We want to see that other task notify us in this

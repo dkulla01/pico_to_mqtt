@@ -1,3 +1,4 @@
+import asyncio
 from enum import Enum
 
 import attrs
@@ -20,5 +21,8 @@ class CasetaEvent:
 
 
 class EventHandler:
+    def __init__(self, shutdown_condition: asyncio.Condition) -> None:
+        self._shutdown_condition = shutdown_condition
+
     async def handle_event(self, event: CasetaEvent):
         pass

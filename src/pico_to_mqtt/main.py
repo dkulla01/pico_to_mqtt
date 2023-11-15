@@ -1,12 +1,15 @@
 import asyncio
+import datetime
 import logging
 import os
 import signal
 import sys
 from typing import Any, Mapping, Optional
 
+from pico_to_mqtt.caseta.button_watcher import ButtonTracker
 from pico_to_mqtt.caseta.topology import Topology, default_bridge
 from pico_to_mqtt.config import AllConfig, get_config
+from pico_to_mqtt.event_handler import EventHandler
 
 _LOGLEVEL = os.environ.get("LOGLEVEL", "INFO").upper()
 _HANDLER = logging.StreamHandler(stream=sys.stderr)
@@ -59,8 +62,17 @@ def handle_exception(loop: asyncio.AbstractEventLoop, context: Mapping[str, Any]
 
 async def main_loop(configuration: AllConfig):
     shutdown_condition = asyncio.Condition()
-    topology = Topology(default_bridge(configuration.caseta_config), shutdown_condition)
-
+    caseta_event_handler = EventHandler(shutdown_condition)
+    button_tracker = ButtonTracker(
+        shutdown_condition,
+        caseta_event_handler,
+        configuration.button_watcher_config,
+        datetime.datetime.now,
+    )
+    topology = Topology(
+        default_bridge(configuration.caseta_config), shutdown_condition, button_tracker
+    )
+    await topology.connect()
     await consume_pico_messages(topology)
 
 

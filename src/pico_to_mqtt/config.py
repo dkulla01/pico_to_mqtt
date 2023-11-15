@@ -12,6 +12,7 @@ from . import APP_NAME
 class AllConfig:
     caseta_config: CasetaConfig
     mqtt_config: MqttConfig
+    button_watcher_config: ButtonWatcherConfig
 
 
 @ts.settings(frozen=True)

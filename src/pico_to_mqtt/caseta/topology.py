@@ -1,9 +1,11 @@
 import itertools
 import logging
 from asyncio import Condition
+from typing import MutableMapping
 
 from pylutron_caseta.smartbridge import Smartbridge
 
+from pico_to_mqtt.caseta.button_watcher import ButtonTracker
 from pico_to_mqtt.caseta.model import ButtonId, PicoRemote, PicoRemoteType
 from pico_to_mqtt.config import CasetaConfig
 
@@ -21,11 +23,15 @@ def default_bridge(caseta_config: CasetaConfig) -> Smartbridge:
 
 class Topology:
     def __init__(
-        self, caseta_bridge: Smartbridge, shutdown_condition: Condition
+        self,
+        caseta_bridge: Smartbridge,
+        shutdown_condition: Condition,
+        button_tracker: ButtonTracker,
     ) -> None:
         self._caseta_bridge: Smartbridge = caseta_bridge
         self._shutdown_condition = shutdown_condition
-        self._remotes_by_id: dict[int, PicoRemote] = {}
+        self._button_tracker = button_tracker
+        self._remotes_by_id: MutableMapping[int, PicoRemote] = {}
 
     async def connect(self) -> None:
         LOGGER.info("connecting to caseta bridge")
@@ -78,3 +84,11 @@ class Topology:
                     device["type"],
                 )
         LOGGER.info("done connecting to caseta bridge")
+
+    def attach_callbacks(self):
+        for _remote_id, remote in self._remotes_by_id.items():
+            for button_id, button in remote.buttons_by_button_id.items():
+                self._caseta_bridge.add_button_subscriber(
+                    str(button_id),
+                    self._button_tracker.button_event_callback(remote, button),
+                )
