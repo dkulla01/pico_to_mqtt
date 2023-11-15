@@ -14,7 +14,7 @@ from pico_to_mqtt.caseta.model import (
 
 @pytest.mark.asyncio
 async def test_increment_button_history_increments_through_all_button_states():
-    button_history = ButtonHistory(timedelta.max)
+    button_history = ButtonHistory(timedelta.max, datetime.datetime.now)
     async with button_history.mutex_locked_button_state.mutex:
         assert button_history.mutex_locked_button_state.state == ButtonState.NOT_PRESSED
     await button_history.increment(ButtonAction.PRESS)
@@ -48,7 +48,7 @@ async def test_increment_button_history_increments_through_all_button_states():
 
 @pytest.mark.asyncio
 async def test_button_history_increment_raises_exception_for_invalid_increments():
-    button_history = ButtonHistory(timedelta.max)
+    button_history = ButtonHistory(timedelta.max, datetime.datetime.now)
     async with button_history.mutex_locked_button_state.mutex:
         assert button_history.mutex_locked_button_state.state == ButtonState.NOT_PRESSED
     with pytest.raises(IllegalStateTransitionError):
