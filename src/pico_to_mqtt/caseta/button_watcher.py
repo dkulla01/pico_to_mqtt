@@ -72,6 +72,7 @@ class ButtonWatcher:
         button_id: ButtonId,
         button_watcher_config: ButtonWatcherConfig,
         event_handler: EventHandler,
+        shutdown_condition: asyncio.Condition,
         current_instant_provider: Callable[[], datetime],
     ) -> None:
         self._pico_remote = pico_remote
@@ -79,6 +80,7 @@ class ButtonWatcher:
         self._button_watcher_config = button_watcher_config
         self._event_handler = event_handler
         self._current_instant_provider = current_instant_provider
+        self._shutdown_condition = shutdown_condition
         self.button_history = ButtonHistory(
             button_watcher_config.max_duration,
             current_time_provider=current_instant_provider,
@@ -94,36 +96,46 @@ class ButtonWatcher:
         )
 
     async def button_watcher_loop(self) -> None:
-        button_history = self.button_history
+        try:
+            button_history = self.button_history
 
-        button_tracking_window_end = (
-            self._current_instant_provider() + self._button_watcher_config.max_duration
-        )
-
-        await asyncio.sleep(
-            self._button_watcher_config.double_click_window.total_seconds()
-        )
-
-        await self._handle_initial_tracking_checkpoint()
-        if button_history.is_finished:
-            return
-
-        while self._current_instant_provider() < button_tracking_window_end:
-            await asyncio.sleep(
-                self._button_watcher_config.sleep_duration.total_seconds()
+            button_tracking_window_end = (
+                self._current_instant_provider()
+                + self._button_watcher_config.max_duration
             )
 
-            await self._handle_followup_tracking_checkpoints()
+            await asyncio.sleep(
+                self._button_watcher_config.double_click_window.total_seconds()
+            )
+
+            await self._handle_initial_tracking_checkpoint()
             if button_history.is_finished:
                 return
-        button_history.is_finished = True
-        LOGGER.debug(
-            (
-                "%s: the button tracking window ended without the button "
-                "reaching a terminal state"
-            ),
-            self.button_log_prefix,
-        )
+
+            while self._current_instant_provider() < button_tracking_window_end:
+                await asyncio.sleep(
+                    self._button_watcher_config.sleep_duration.total_seconds()
+                )
+
+                await self._handle_followup_tracking_checkpoints()
+                if button_history.is_finished:
+                    return
+            button_history.is_finished = True
+            LOGGER.debug(
+                (
+                    "%s: the button tracking window ended without the button "
+                    "reaching a terminal state"
+                ),
+                self.button_log_prefix,
+            )
+        except Exception as e:
+            LOGGER.error(
+                "%s: encountered a problem watching this button",
+                self.button_log_prefix,
+                e,
+            )
+            async with self._shutdown_condition:
+                self._shutdown_condition.notify()
 
     async def _handle_initial_tracking_checkpoint(self):
         button_history = self.button_history
@@ -293,6 +305,7 @@ class ButtonTracker:
                     button_id,
                     self._button_watcher_config,
                     self._caseta_event_handler,
+                    self._shutdown_condition,
                     self._current_instant_provider,
                 )
                 await button_watcher.increment_history(button_action)

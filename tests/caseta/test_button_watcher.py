@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 from unittest.mock import AsyncMock, Mock
 
@@ -50,6 +51,9 @@ def example_button_id():
 def mock_handle_event_method():
     return AsyncMock()
 
+@pytest.fixture
+def example_shutdown_condition():
+    return asyncio.Condition()
 
 @pytest.fixture
 def example_event_handler(mock_handle_event_method: AsyncMock):
@@ -65,12 +69,14 @@ def example_button_watcher(
     example_button_watcher_config: ButtonWatcherConfig,
     example_button_id: ButtonId,
     example_event_handler: EventHandler,
+    example_shutdown_condition: asyncio.Condition
 ) -> ButtonWatcher:
     return ButtonWatcher(
         example_pico_remote,
         example_button_id,
         example_button_watcher_config,
         example_event_handler,
+        example_shutdown_condition,
         lambda: january_first_midnight,
     )
 
