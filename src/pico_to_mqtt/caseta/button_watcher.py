@@ -34,7 +34,7 @@ class ButtonHistory:
     def __init__(
         self,
         button_watcher_timeout: timedelta,
-        current_time_provider: Callable[[], datetime] = datetime.now,
+        current_time_provider: Callable[[], datetime],
     ) -> None:
         self.mutex_locked_button_state = MutexLockedButtonState.new_instance()
         self._button_state: ButtonState = ButtonState.NOT_PRESSED
@@ -72,7 +72,7 @@ class ButtonWatcher:
         button_id: ButtonId,
         button_watcher_config: ButtonWatcherConfig,
         event_handler: EventHandler,
-        current_instant_provider: Callable[[], datetime] = datetime.now,
+        current_instant_provider: Callable[[], datetime],
     ) -> None:
         self._pico_remote = pico_remote
         self._button_id = button_id
@@ -252,6 +252,7 @@ class ButtonTracker:
     async def _process_button_event(
         self, remote: PicoRemote, button_id: ButtonId, button_action: ButtonAction
     ):
+        """visible for testing"""
         remote_info_logging_str = (
             f"remote: (name: {remote.name}, "
             "id: {remote.device_id}, button_id: {button_id})"
@@ -292,9 +293,10 @@ class ButtonTracker:
                     button_id,
                     self._button_watcher_config,
                     self._caseta_event_handler,
+                    self._current_instant_provider,
                 )
                 await button_watcher.increment_history(button_action)
-                asyncio.ensure_future(button_watcher.button_watcher_loop())
+                asyncio.create_task(button_watcher.button_watcher_loop())
             else:
                 await button_watcher.increment_history(button_action)
             self._mutex_locked_button_watchers.button_watchers_by_remote_id[
