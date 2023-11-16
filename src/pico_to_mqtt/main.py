@@ -30,11 +30,6 @@ def print_hello_world() -> None:
     print("Hello, world! hello, Dan")
 
 
-async def consume_pico_messages(topology: Topology):
-    await topology.connect()
-    LOGGER.info("yay we've connected")
-
-
 async def shutdown(
     loop: asyncio.AbstractEventLoop, signal: Optional[signal.Signals] = None
 ):
@@ -73,7 +68,9 @@ async def main_loop(configuration: AllConfig):
         default_bridge(configuration.caseta_config), shutdown_condition, button_tracker
     )
     await topology.connect()
-    await consume_pico_messages(topology)
+    topology.attach_callbacks()
+    async with shutdown_condition:
+        await shutdown_condition.wait()
 
 
 def main():
