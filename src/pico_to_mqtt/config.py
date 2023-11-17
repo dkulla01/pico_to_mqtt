@@ -26,7 +26,7 @@ class CasetaConfig:
 
 @ts.settings(frozen=True)
 class MqttCredentials:
-    mqtt_username: str
+    username: str
 
     # note: for some reason, a ts.secret(converter=ts.Secret) converter
     # creates a ts.Secret[ts.Secret[str]]
@@ -40,7 +40,7 @@ class MqttCredentials:
     # leading to a Secret[Secret[str]], which is not what we want.
     # so I'm going to file an issue, but I want to write this down while it's
     # fresh in my mind. and we'll use a plain ol' str for now
-    mqtt_password: str
+    password: str
 
 
 @ts.settings(frozen=True)
@@ -67,8 +67,8 @@ class MqttConfig:
     path_to_mqtt_client_cert: Path
     path_to_mqtt_client_key: Path
     path_to_mqtt_client_ca: Path
-    mqtt_hostname: str
-    mqtt_port: int
+    hostname: str
+    port: int
 
 
 def get_config() -> AllConfig:
