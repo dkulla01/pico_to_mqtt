@@ -11,6 +11,7 @@ python = "^3.12"
 pylutron-caseta = { extras = ["cli"], version = "^0.18.3" }
 attrs = "^23.1.0"
 typed-settings = {version = "^23.1.0", extras = ["attrs", "cattrs"]}
+aiomqtt = "^1.2.1"
 
 
 [tool.poetry.group.dev.dependencies]

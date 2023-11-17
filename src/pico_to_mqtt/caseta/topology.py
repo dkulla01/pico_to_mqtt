@@ -75,7 +75,7 @@ class Topology:
                 )
 
             else:
-                LOGGER.debug(
+                LOGGER.warn(
                     (
                         "device: %s: device type `%s` "
                         "is not a supported pico remote and will be skipped"
