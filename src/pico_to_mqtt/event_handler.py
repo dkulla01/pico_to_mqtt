@@ -35,7 +35,11 @@ class EventHandler:
         self._shutdown_condition = shutdown_condition
 
     async def handle_event(self, event: CasetaEvent):
-        topic = f"picotomqtt/{event.remote.name}"
+        topic = (
+            f"picotomqtt/{event.remote.area_name}"
+            f"/{event.remote.name}"
+            f"/{event.button_id.as_mqtt_topic_friendly_name}"
+        )
         payload = {
             "button_id": event.button_id.name,
             "area": event.remote.area_name,

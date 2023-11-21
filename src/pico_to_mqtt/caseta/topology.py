@@ -73,7 +73,11 @@ class Topology:
             if device["type"] in PicoRemoteType.values():
                 device_type = PicoRemoteType.from_str(device["type"])
                 self._remotes_by_id[device_id_as_int] = PicoRemote(
-                    device_id_as_int, device_type, device_name, area_name, buttons_by_id
+                    device_id_as_int,
+                    device_type,
+                    Topology._as_mqtt_friendly_name(device_name),
+                    Topology._as_mqtt_friendly_name(area_name),
+                    buttons_by_id,
                 )
 
             else:
@@ -86,6 +90,10 @@ class Topology:
                     device["type"],
                 )
         LOGGER.info("done connecting to caseta bridge")
+
+    @staticmethod
+    def _as_mqtt_friendly_name(raw_name: str) -> str:
+        return raw_name.lower().replace("_", "-").replace(" ", "-")
 
     def attach_callbacks(self):
         for _remote_id, remote in self._remotes_by_id.items():

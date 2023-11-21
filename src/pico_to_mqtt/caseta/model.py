@@ -26,6 +26,10 @@ class ButtonId(Enum):
     def of_int(cls, value: int):
         return {member.value: member for member in cls}[value]
 
+    @property
+    def as_mqtt_topic_friendly_name(self):
+        return self.name.lower().replace("_", "-")
+
 
 class ButtonAction(Enum):
     PRESS = 0
