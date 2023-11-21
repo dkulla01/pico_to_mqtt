@@ -33,6 +33,7 @@ def example_pico_remote() -> PicoRemote:
         99,
         PicoRemoteType.PICO_THREE_BUTTON_RAISE_LOWER,
         "some_test_remote",
+        "fancyroom",
         buttons_by_button_id,
     )
 
@@ -51,9 +52,11 @@ def example_button_id():
 def mock_handle_event_method():
     return AsyncMock()
 
+
 @pytest.fixture
 def example_shutdown_condition():
     return asyncio.Condition()
+
 
 @pytest.fixture
 def example_event_handler(mock_handle_event_method: AsyncMock):
@@ -69,7 +72,7 @@ def example_button_watcher(
     example_button_watcher_config: ButtonWatcherConfig,
     example_button_id: ButtonId,
     example_event_handler: EventHandler,
-    example_shutdown_condition: asyncio.Condition
+    example_shutdown_condition: asyncio.Condition,
 ) -> ButtonWatcher:
     return ButtonWatcher(
         example_pico_remote,

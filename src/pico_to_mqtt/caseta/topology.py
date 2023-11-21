@@ -47,6 +47,7 @@ class Topology:
 
         all_buttons = self._caseta_bridge.get_buttons()
         all_devices = self._caseta_bridge.get_devices()
+        all_areas = self._caseta_bridge.areas
         buttons_by_remote_id = {
             remote_id: list(buttons)
             for remote_id, buttons in itertools.groupby(
@@ -67,11 +68,12 @@ class Topology:
             }
 
             device_name = device["name"].removesuffix("_Pico")
+            area_name = all_areas[device["area"]]["name"]
             device_id_as_int = int(device_id)
             if device["type"] in PicoRemoteType.values():
                 device_type = PicoRemoteType.from_str(device["type"])
                 self._remotes_by_id[device_id_as_int] = PicoRemote(
-                    device_id_as_int, device_type, device_name, buttons_by_id
+                    device_id_as_int, device_type, device_name, area_name, buttons_by_id
                 )
 
             else:

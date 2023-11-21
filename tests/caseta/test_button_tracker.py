@@ -28,6 +28,7 @@ def example_pico_remote() -> PicoRemote:
         99,
         PicoRemoteType.PICO_THREE_BUTTON_RAISE_LOWER,
         "some_test_remote",
+        "fancyroom",
         buttons_by_button_id,
     )
 
@@ -65,7 +66,7 @@ async def test_button_tracker_tracks_a_new_button_press_event(
     mock_event_handler: EventHandler,
     example_button_watcher_config: ButtonWatcherConfig,
     january_first_midnight: datetime.datetime,
-    mock_asyncio_create_task: Mock
+    mock_asyncio_create_task: Mock,
 ):
     button_tracker = ButtonTracker(
         mock_shutdown_condition,
@@ -80,6 +81,7 @@ async def test_button_tracker_tracks_a_new_button_press_event(
 
     mock_asyncio_create_task.assert_called()
 
+
 @pytest.mark.asyncio
 async def test_button_tracker_does_not_track_an_initial_release_event(
     mock_shutdown_condition: asyncio.Condition,
@@ -88,7 +90,7 @@ async def test_button_tracker_does_not_track_an_initial_release_event(
     mock_event_handler: EventHandler,
     example_button_watcher_config: ButtonWatcherConfig,
     january_first_midnight: datetime.datetime,
-    mock_asyncio_create_task: Mock
+    mock_asyncio_create_task: Mock,
 ):
     button_tracker = ButtonTracker(
         mock_shutdown_condition,
@@ -103,6 +105,7 @@ async def test_button_tracker_does_not_track_an_initial_release_event(
 
     mock_asyncio_create_task.assert_not_called()
 
+
 @pytest.mark.asyncio
 async def test_button_tracker_increments_an_existing_button_watcher(
     mock_shutdown_condition: asyncio.Condition,
@@ -111,7 +114,7 @@ async def test_button_tracker_increments_an_existing_button_watcher(
     mock_event_handler: EventHandler,
     example_button_watcher_config: ButtonWatcherConfig,
     january_first_midnight: datetime.datetime,
-    mock_asyncio_create_task: Mock
+    mock_asyncio_create_task: Mock,
 ):
     button_tracker = ButtonTracker(
         mock_shutdown_condition,

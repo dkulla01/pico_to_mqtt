@@ -94,4 +94,5 @@ class PicoRemote:
     device_id: int
     type: PicoRemoteType
     name: str
+    area_name: str
     buttons_by_button_id: Mapping[int, ButtonId]

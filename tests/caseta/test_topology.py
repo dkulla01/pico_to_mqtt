@@ -13,6 +13,7 @@ _SMARTBRIDGE_DEVICES = {
     "2": {
         "device_id": "2",
         "name": "test_remote",
+        "area": "99",
         "type": PicoRemoteType.PICO_THREE_BUTTON_RAISE_LOWER.value,
     },
     "1": {"device_id": "1", "name": "Smart Bridge", "type": "SmartBridge"},
@@ -27,6 +28,8 @@ _SMARTBRIDGE_BUTTONS = {
     "104": {"device_id": "104", "button_number": 4, "parent_device": "2"},
 }
 
+_SMARTBRIDGE_AREAS = {"99": {"id": "99", "name": "fancyroom"}}
+
 
 @pytest.fixture
 def mock_smartbridge(mocker: MockerFixture):
@@ -36,6 +39,8 @@ def mock_smartbridge(mocker: MockerFixture):
 
     mock_get_devices = Mock(return_value=_SMARTBRIDGE_DEVICES)
     mock_smartbridge.get_devices = mock_get_devices
+
+    setattr(mock_smartbridge, "areas", _SMARTBRIDGE_AREAS)
 
     mock_connect = AsyncMock()
     mock_smartbridge.connect = mock_connect

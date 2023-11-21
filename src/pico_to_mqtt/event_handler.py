@@ -36,7 +36,11 @@ class EventHandler:
 
     async def handle_event(self, event: CasetaEvent):
         topic = f"picotomqtt/{event.remote.name}"
-        payload = {"button_id": event.button_id, "action": event.button_event.name}
+        payload = {
+            "button_id": event.button_id.name,
+            "area": event.remote.area_name,
+            "action": event.button_event.name,
+        }
         payload_str = json.dumps(payload)
         try:
             await self._context_managed_mqtt_client.publish(topic, payload_str)
@@ -44,7 +48,7 @@ class EventHandler:
             LOGGER.error(
                 (
                     "encountered an error trying to publish mqtt message. "
-                    "topic: %s, message: %s"
+                    "topic: %s, message: %s, exception: %s"
                 ),
                 topic,
                 payload_str,
