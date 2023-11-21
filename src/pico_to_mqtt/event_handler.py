@@ -1,10 +1,14 @@
 import asyncio
+import json
+import logging
 from enum import Enum
 
 import aiomqtt
 import attrs
 
 from pico_to_mqtt.caseta.model import ButtonId, PicoRemote
+
+LOGGER = logging.getLogger(__name__)
 
 
 class ButtonEvent(Enum):
@@ -31,4 +35,21 @@ class EventHandler:
         self._shutdown_condition = shutdown_condition
 
     async def handle_event(self, event: CasetaEvent):
-        pass
+        topic = f"picotomqtt/{event.remote.name}"
+        payload = {"button_id": event.button_id, "action": event.button_event.name}
+        payload_str = json.dumps(payload)
+        try:
+            await self._context_managed_mqtt_client.publish(topic, payload_str)
+        except Exception as e:
+            LOGGER.error(
+                (
+                    "encountered an error trying to publish mqtt message. "
+                    "topic: %s, message: %s"
+                ),
+                topic,
+                payload_str,
+                e,
+            )
+            async with self._shutdown_condition:
+                self._shutdown_condition.notify()
+            raise e

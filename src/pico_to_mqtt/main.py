@@ -51,8 +51,12 @@ async def shutdown(
 
 
 def handle_exception(loop: asyncio.AbstractEventLoop, context: Mapping[str, Any]):
-    message = context.get("exception", context["message"])
-    LOGGER.error("caught exception %s", message)
+    if "exception" in context:
+        message = context["exception"]
+        LOGGER.error("caught exception %s", message)
+    else:
+        message = context["message"]
+        LOGGER.info("received notification: %s", message)
     LOGGER.info("shutting down now")
     asyncio.create_task(shutdown(loop))
 
@@ -99,11 +103,13 @@ async def main_loop(configuration: AllConfig):
         async with shutdown_condition:
             await shutdown_condition.wait()
 
+            asyncio.get_running_loop().call_exception_handler(
+                {"message": "shutdown condition received"}
+            )
+
 
 def main():
     configuration = get_config()
-    logging.info(f"configuration: {configuration}")
-
     loop = asyncio.new_event_loop()
     for termination_signal in _TERMINATION_SIGNALS:
         loop.add_signal_handler(
@@ -117,7 +123,7 @@ def main():
     finally:
         loop.close()
 
-    logging.info("we're done")
+    LOGGER.info("shutdown work complete.")
 
 
 if __name__ == "__main__":

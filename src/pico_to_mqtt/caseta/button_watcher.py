@@ -136,6 +136,7 @@ class ButtonWatcher:
             )
             async with self._shutdown_condition:
                 self._shutdown_condition.notify()
+            raise e
 
     async def _handle_initial_tracking_checkpoint(self):
         button_history = self.button_history
