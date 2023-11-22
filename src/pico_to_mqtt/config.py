@@ -45,7 +45,7 @@ class MqttCredentials:
 
 @ts.settings(frozen=True)
 class ButtonWatcherConfig:
-    double_click_window_ms: int = 500
+    double_click_window_ms: int = 750  # it seems like caseta's minimum resolution for increase/decrease double clicks is 500ms wth # noqa: E501
     sleep_duration_ms: int = 250
     max_duration_ms: int = 5000
 
