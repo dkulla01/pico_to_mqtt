@@ -105,7 +105,9 @@ class ButtonWatcher:
             )
 
             await asyncio.sleep(
-                self._button_watcher_config.double_click_window.total_seconds()
+                self._button_watcher_config.double_click_window.get_double_click_window(
+                    self._button_id
+                ).total_seconds()
             )
 
             await self._handle_initial_tracking_checkpoint()
@@ -130,7 +132,7 @@ class ButtonWatcher:
             )
         except Exception as e:
             LOGGER.error(
-                "%s: encountered a problem watching this button",
+                "%s: encountered a problem watching this button. exception: %s",
                 self.button_log_prefix,
                 e,
             )

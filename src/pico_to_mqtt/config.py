@@ -5,6 +5,8 @@ from pathlib import Path
 
 import typed_settings as ts
 
+from pico_to_mqtt.caseta.model import ButtonId
+
 from . import APP_NAME
 
 
@@ -45,13 +47,9 @@ class MqttCredentials:
 
 @ts.settings(frozen=True)
 class ButtonWatcherConfig:
-    double_click_window_ms: int = 750  # it seems like caseta's minimum resolution for increase/decrease double clicks is 500ms wth # noqa: E501
+    double_click_window: DoubleClickWindow
     sleep_duration_ms: int = 250
     max_duration_ms: int = 5000
-
-    @property
-    def double_click_window(self) -> timedelta:
-        return timedelta(milliseconds=self.double_click_window_ms)
 
     @property
     def sleep_duration(self) -> timedelta:
@@ -60,6 +58,28 @@ class ButtonWatcherConfig:
     @property
     def max_duration(self) -> timedelta:
         return timedelta(milliseconds=self.max_duration_ms)
+
+
+@ts.settings(frozen=True)
+class DoubleClickWindow:
+    power_on_double_click_window_ms: int = 300
+    favorite_double_click_window_ms: int = 300
+    power_off_double_click_window_ms: int = 300
+    increase_double_click_window_ms: int = 750
+    decrease_double_click_window_ms: int = 750
+
+    def get_double_click_window(self, button_id: ButtonId) -> timedelta:
+        match button_id:
+            case ButtonId.POWER_ON:
+                return timedelta(milliseconds=self.power_on_double_click_window_ms)
+            case ButtonId.FAVORITE:
+                return timedelta(milliseconds=self.favorite_double_click_window_ms)
+            case ButtonId.POWER_OFF:
+                return timedelta(milliseconds=self.power_off_double_click_window_ms)
+            case ButtonId.INCREASE:
+                return timedelta(milliseconds=self.increase_double_click_window_ms)
+            case ButtonId.DECREASE:
+                return timedelta(milliseconds=self.decrease_double_click_window_ms)
 
 
 @ts.settings(frozen=True)
