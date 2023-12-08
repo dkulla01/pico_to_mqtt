@@ -4,6 +4,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import typed_settings as ts
+from attr import Factory, field
 
 from pico_to_mqtt.caseta.model import ButtonId
 
@@ -46,21 +47,6 @@ class MqttCredentials:
 
 
 @ts.settings(frozen=True)
-class ButtonWatcherConfig:
-    double_click_window: DoubleClickWindow
-    sleep_duration_ms: int = 250
-    max_duration_ms: int = 5000
-
-    @property
-    def sleep_duration(self) -> timedelta:
-        return timedelta(milliseconds=self.sleep_duration_ms)
-
-    @property
-    def max_duration(self) -> timedelta:
-        return timedelta(milliseconds=self.max_duration_ms)
-
-
-@ts.settings(frozen=True)
 class DoubleClickWindow:
     power_on_double_click_window_ms: int = 300
     favorite_double_click_window_ms: int = 300
@@ -80,6 +66,27 @@ class DoubleClickWindow:
                 return timedelta(milliseconds=self.increase_double_click_window_ms)
             case ButtonId.DECREASE:
                 return timedelta(milliseconds=self.decrease_double_click_window_ms)
+
+    @classmethod
+    def default_instance(cls) -> DoubleClickWindow:
+        return cls()
+
+
+@ts.settings(frozen=True)
+class ButtonWatcherConfig:
+    double_click_window: DoubleClickWindow = field(
+        default=Factory(DoubleClickWindow.default_instance)
+    )
+    sleep_duration_ms: int = 250
+    max_duration_ms: int = 5000
+
+    @property
+    def sleep_duration(self) -> timedelta:
+        return timedelta(milliseconds=self.sleep_duration_ms)
+
+    @property
+    def max_duration(self) -> timedelta:
+        return timedelta(milliseconds=self.max_duration_ms)
 
 
 @ts.settings(frozen=True)
