@@ -16,6 +16,9 @@ poetry config cache-dir "$poetry_cache_dir"
 #don't create a new virtualenv. use the virtualenv we already created
 poetry config virtualenvs.create false
 
+# this activate script gets created when the virtualenv gets created
+# so there isn't a path for shellcheck to follow and check
+# shellcheck disable=SC1090
 source "${poetry_virtualenv_dir}/${virtualenv_name}/bin/activate"
 poetry install
 
