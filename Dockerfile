@@ -15,7 +15,7 @@ RUN echo "I am a placeholder readme to make poetry happy" > README.md
 RUN poetry install --without dev --no-root && rm -rf ${POETRY_CACHE_DIR}
 
 
-FROM python:3.12-bookworm AS runtime
+FROM python:3.12-slim-bookworm AS runtime
 
 ENV VIRTUAL_ENV=/app/.venv \
     PATH="/app/.venv/bin:${PATH}"
