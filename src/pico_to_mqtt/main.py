@@ -21,7 +21,11 @@ _HANDLER.setFormatter(_FORMATTER)
 logging.basicConfig(level=_LOGLEVEL, handlers=[_HANDLER])
 LOGGER = logging.getLogger(__name__)
 
-_TERMINATION_SIGNALS = [signal.SIGHUP, signal.SIGTERM, signal.SIGINT]
+_TERMINATION_SIGNALS = [
+    signal.SIGHUP,
+    signal.SIGTERM,
+    signal.SIGINT,
+]
 
 
 async def shutdown(
@@ -104,10 +108,11 @@ def main():
     configuration = get_config()
     loop = asyncio.new_event_loop()
     for termination_signal in _TERMINATION_SIGNALS:
-        loop.add_signal_handler(
-            termination_signal,
-            lambda s=termination_signal: asyncio.create_task(shutdown(loop, signal=s)),
-        )
+
+        def _handle_termination_signal():
+            asyncio.create_task(shutdown(loop, termination_signal))
+
+        loop.add_signal_handler(termination_signal, _handle_termination_signal)
     loop.set_exception_handler(handle_exception)
     try:
         loop.create_task(main_loop(configuration))
