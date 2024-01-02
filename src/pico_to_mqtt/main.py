@@ -24,14 +24,6 @@ LOGGER = logging.getLogger(__name__)
 _TERMINATION_SIGNALS = [signal.SIGHUP, signal.SIGTERM, signal.SIGINT]
 
 
-def return_three_for_pytest_flow_check() -> int:
-    return 3
-
-
-def print_hello_world() -> None:
-    print("Hello, world! hello, Dan")
-
-
 async def shutdown(
     loop: asyncio.AbstractEventLoop, signal: Optional[signal.Signals] = None
 ):
