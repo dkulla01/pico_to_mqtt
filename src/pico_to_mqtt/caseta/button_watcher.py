@@ -272,7 +272,7 @@ class ButtonTracker:
             f"remote: (name: {remote.name}, "
             "id: {remote.device_id}, button_id: {button_id})"
         )
-        LOGGER.info(
+        LOGGER.debug(
             "got a button event: %s, button_action: %s",
             remote_info_logging_str,
             button_action,

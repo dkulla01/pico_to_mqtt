@@ -4,6 +4,7 @@ import logging
 import os
 import signal
 import sys
+import traceback
 from typing import Any, Mapping, Optional
 
 import aiomqtt
@@ -48,8 +49,12 @@ async def shutdown(
 
 def handle_exception(loop: asyncio.AbstractEventLoop, context: Mapping[str, Any]):
     if "exception" in context:
-        message = context["exception"]
-        LOGGER.error("caught exception %s", message)
+        exception = context["exception"]
+        LOGGER.error("caught exception %s", exception)
+        if isinstance(exception, Exception):
+            LOGGER.error(
+                "caught exception: \n%s", "".join(traceback.format_exception(exception))
+            )
     else:
         message = context["message"]
         LOGGER.info("received notification: %s", message)

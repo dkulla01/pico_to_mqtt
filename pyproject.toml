@@ -8,7 +8,7 @@ packages = [{ include = "pico_to_mqtt", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.12"
-pylutron-caseta = { extras = ["cli"], version = "^0.18.3" }
+pylutron-caseta = "^0.18.3"
 attrs = "^23.1.0"
 typed-settings = {version = "^23.1.0", extras = ["attrs", "cattrs"]}
 aiomqtt = "^1.2.1"
@@ -20,6 +20,7 @@ pytest = "^7.4.3"
 pytest-asyncio = "^0.21.1"
 pyright = "^1.1.344"
 pytest-mock = "^3.12.0"
+pylutron-caseta = { extras = ["cli"], version = "^0.18.3" }
 
 [tool.pyright]
 ignore = ["typings"]
