@@ -9,11 +9,14 @@ from pico_to_mqtt.caseta.topology import Topology
 from pylutron_caseta.smartbridge import Smartbridge
 from pytest_mock import MockerFixture
 
+_AREA_ID = "99"
+_AREA_NAME = "fancyroom"
+_REMOTE_NAME = "entrywayremote"
 _SMARTBRIDGE_DEVICES = {
     "2": {
         "device_id": "2",
-        "name": "test_remote",
-        "area": "99",
+        "name": f"{_AREA_NAME}_{_REMOTE_NAME}",
+        "area": _AREA_ID,
         "type": PicoRemoteType.PICO_THREE_BUTTON_RAISE_LOWER.value,
     },
     "1": {"device_id": "1", "name": "Smart Bridge", "type": "SmartBridge"},
@@ -28,7 +31,7 @@ _SMARTBRIDGE_BUTTONS = {
     "104": {"device_id": "104", "button_number": 4, "parent_device": "2"},
 }
 
-_SMARTBRIDGE_AREAS = {"99": {"id": "99", "name": "fancyroom"}}
+_SMARTBRIDGE_AREAS = {"99": {"id": "99", "name": _AREA_NAME}}
 
 
 @pytest.fixture
