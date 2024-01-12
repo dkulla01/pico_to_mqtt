@@ -67,7 +67,7 @@ class Topology:
                 for button in remote_buttons
             }
 
-            device_name = device["name"].removesuffix("_Pico")
+            (_ignored, device_name) = device["name"].split('_')
             area_name = all_areas[device["area"]]["name"]
             device_id_as_int = int(device_id)
             if device["type"] in PicoRemoteType.values():
