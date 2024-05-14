@@ -7,8 +7,6 @@
         "vscode": {
             "settings": {
                 "editor.formatOnSave": true,
-                // "python.analysis.extraPaths": [
-                // ],
                 "editor.defaultFormatter": "charliermarsh.ruff",
                 "extensions.autoUpdate": false,
                 "python.defaultInterpreterPath": "/home/vscode/.poetry-root/.cache/virtualenvs/pico-to-mqtt/bin/python",
@@ -20,7 +18,7 @@
                 "python.analysis.stubPath": "typings",
                 "[python]": {
                     "editor.codeActionsOnSave": {
-                        "source.organizeImports": true
+                        "source.organizeImports": "explicit"
                     }
                 }
             },

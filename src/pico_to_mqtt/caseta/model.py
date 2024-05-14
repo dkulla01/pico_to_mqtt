@@ -75,6 +75,7 @@ class ButtonState(Enum):
 
 
 class PicoRemoteType(StrEnum):
+    PICO_TWO_BUTTON = "Pico2Button"
     PICO_THREE_BUTTON_RAISE_LOWER = "Pico3ButtonRaiseLower"
 
     def as_str(self) -> str:
