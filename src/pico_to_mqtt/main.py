@@ -123,28 +123,36 @@ async def main_loop(configuration: AllConfig):
                     "nothing to do here"
                 )
 
-            async with shutdown_condition:
-                sleep_for_three_seconds_task = asyncio.create_task(
-                    sleep_for_three_seconds()
+            wait_for_caseta_bridge_refresh_interval_task = asyncio.create_task(
+                asyncio.sleep(
+                    configuration.caseta_config.caseta_bridge_refresh_interval_sec
                 )
-                wait_for_shutdown_condition_task = asyncio.create_task(
-                    shutdown_condition.wait()
-                )
-                finished_tasks, _unfinished_tasks = await asyncio.wait(
-                    [sleep_for_three_seconds_task, wait_for_shutdown_condition_task],
-                    return_when=asyncio.FIRST_COMPLETED,
-                )
+            )
+            wait_for_shutdown_condition_task = asyncio.create_task(
+                wait_for_shutdown_condition(shutdown_condition)
+            )
+            finished_tasks, _unfinished_tasks = await asyncio.wait(
+                [
+                    wait_for_caseta_bridge_refresh_interval_task,
+                    wait_for_shutdown_condition_task,
+                ],
+                return_when=asyncio.FIRST_COMPLETED,
+            )
 
-                if wait_for_shutdown_condition_task in finished_tasks:
-                    asyncio.get_running_loop().call_exception_handler(
-                        {"message": "shutdown condition received"}
-                    )
-                    return
-                
+            if wait_for_shutdown_condition_task in finished_tasks:
+                asyncio.get_running_loop().call_exception_handler(
+                    {"message": "shutdown condition received"}
+                )
+                return
 
 
 async def sleep_for_three_seconds() -> None:
     await asyncio.sleep(3)
+
+
+async def wait_for_shutdown_condition(shutdown_condition: asyncio.Condition) -> None:
+    async with shutdown_condition:
+        await shutdown_condition.wait()
 
 
 def main():

@@ -25,6 +25,7 @@ class CasetaConfig:
     path_to_caseta_client_cert: Path
     path_to_caseta_client_key: Path
     path_to_caseta_client_ca: Path
+    caseta_bridge_refresh_interval_sec: int = 60
 
 
 @ts.settings(frozen=True)
