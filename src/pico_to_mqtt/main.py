@@ -118,7 +118,7 @@ async def main_loop(configuration: AllConfig):
                 current_topology.attach_callbacks()
                 asyncio.create_task(old_topology.close())
             else:
-                LOGGER.info(
+                LOGGER.debug(
                     "the new topology is the same as the old topology. "
                     "closing the new topology instance, since we won't need it anymore"
                 )
@@ -147,9 +147,6 @@ async def main_loop(configuration: AllConfig):
                 return
             else:
                 wait_for_shutdown_condition_task.cancel()
-
-async def sleep_for_three_seconds() -> None:
-    await asyncio.sleep(3)
 
 
 async def wait_for_shutdown_condition(shutdown_condition: asyncio.Condition) -> None:
