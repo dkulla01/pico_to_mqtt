@@ -120,8 +120,9 @@ async def main_loop(configuration: AllConfig):
             else:
                 LOGGER.info(
                     "the new topology is the same as the old topology. "
-                    "nothing to do here"
+                    "closing the new topology instance, since we won't need it anymore"
                 )
+                asyncio.create_task(new_topology.close())
 
             wait_for_caseta_bridge_refresh_interval_task = asyncio.create_task(
                 asyncio.sleep(
@@ -144,7 +145,8 @@ async def main_loop(configuration: AllConfig):
                     {"message": "shutdown condition received"}
                 )
                 return
-
+            else:
+                wait_for_shutdown_condition_task.cancel()
 
 async def sleep_for_three_seconds() -> None:
     await asyncio.sleep(3)
