@@ -75,6 +75,7 @@ class ButtonState(Enum):
 
 
 class PicoRemoteType(StrEnum):
+    PICO_TWO_BUTTON = "Pico2Button"
     PICO_THREE_BUTTON_RAISE_LOWER = "Pico3ButtonRaiseLower"
 
     def as_str(self) -> str:
@@ -85,8 +86,12 @@ class PicoRemoteType(StrEnum):
         match str_literal:
             case cls.PICO_THREE_BUTTON_RAISE_LOWER.value:
                 return cls.PICO_THREE_BUTTON_RAISE_LOWER
+            case cls.PICO_TWO_BUTTON.value:
+                return cls.PICO_TWO_BUTTON
             case _:
-                raise LookupError(f"{str_literal} is not a valid pico remote type")
+                raise LookupError(
+                    f"{str_literal} is not a valid, supported pico remote type"
+                )
 
     @classmethod
     def values(cls) -> Iterable[str]:

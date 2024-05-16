@@ -44,6 +44,7 @@ class EventHandler:
             "button_id": event.button_id.name,
             "area": event.remote.area_name,
             "action": event.button_event.name,
+            "remote_type": event.remote.type,
         }
         payload_str = json.dumps(payload)
         try:
