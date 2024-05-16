@@ -38,7 +38,7 @@ class Topology:
         self._caseta_bridge: Smartbridge = caseta_bridge
         self._shutdown_condition = shutdown_condition
         self._button_tracker = button_tracker
-        self._remotes_by_id: Optional[Mapping[int, PicoRemote]]
+        self.remotes_by_id: Optional[Mapping[int, PicoRemote]]
 
     async def connect(self) -> None:
         LOGGER.info("connecting to caseta bridge")
@@ -97,15 +97,27 @@ class Topology:
                     device["name"],
                     device["type"],
                 )
-        self._remotes_by_id = remotes_by_id
+        self.remotes_by_id = remotes_by_id
         LOGGER.info("done connecting to caseta bridge")
+
+    async def close(self) -> None:
+        try:
+            LOGGER.info("disconnecting from the caseta bridge")
+            await self._caseta_bridge.close()
+        except Exception as e:
+            LOGGER.error(
+                "there was a problem disconnecting from the caseta smartbridge: %s", e
+            )
+            async with self._shutdown_condition:
+                self._shutdown_condition.notify()
+            raise e
 
     @staticmethod
     def _as_mqtt_friendly_name(raw_name: str) -> str:
         return raw_name.lower().replace("_", "-").replace(" ", "-")
 
     def attach_callbacks(self):
-        remotes_by_id = self._remotes_by_id
+        remotes_by_id = self.remotes_by_id
 
         if remotes_by_id is None:
             raise TopologyInitializationException(

@@ -84,6 +84,7 @@ async def main_loop(configuration: AllConfig):
     mqtt_client = new_mqtt_client(
         configuration.mqtt_config, configuration.mqtt_credentials
     )
+
     async with mqtt_client as context_managed_mqtt_client:
         caseta_event_handler = EventHandler(
             context_managed_mqtt_client, shutdown_condition
@@ -94,19 +95,56 @@ async def main_loop(configuration: AllConfig):
             configuration.button_watcher_config,
             datetime.datetime.now,
         )
-        topology = Topology(
-            default_bridge(configuration.caseta_config),
-            shutdown_condition,
-            button_tracker,
-        )
-        await topology.connect()
-        topology.attach_callbacks()
-        async with shutdown_condition:
-            await shutdown_condition.wait()
-
-            asyncio.get_running_loop().call_exception_handler(
-                {"message": "shutdown condition received"}
+        current_topology: Optional[Topology] = None
+        while True:
+            new_topology = Topology(
+                default_bridge(configuration.caseta_config),
+                shutdown_condition,
+                button_tracker,
             )
+            await new_topology.connect()
+
+            if not current_topology:
+                LOGGER.info("connecting an initial topology instance")
+                current_topology = new_topology
+                current_topology.attach_callbacks()
+            elif current_topology.remotes_by_id != new_topology.remotes_by_id:
+                LOGGER.info(
+                    "new topoology differs from existing topology. "
+                    "swapping out the old topology"
+                )
+                old_topology = current_topology
+                current_topology = new_topology
+                current_topology.attach_callbacks()
+                asyncio.create_task(old_topology.close())
+            else:
+                LOGGER.info(
+                    "the new topology is the same as the old topology. "
+                    "nothing to do here"
+                )
+
+            async with shutdown_condition:
+                sleep_for_three_seconds_task = asyncio.create_task(
+                    sleep_for_three_seconds()
+                )
+                wait_for_shutdown_condition_task = asyncio.create_task(
+                    shutdown_condition.wait()
+                )
+                finished_tasks, _unfinished_tasks = await asyncio.wait(
+                    [sleep_for_three_seconds_task, wait_for_shutdown_condition_task],
+                    return_when=asyncio.FIRST_COMPLETED,
+                )
+
+                if wait_for_shutdown_condition_task in finished_tasks:
+                    asyncio.get_running_loop().call_exception_handler(
+                        {"message": "shutdown condition received"}
+                    )
+                    return
+                
+
+
+async def sleep_for_three_seconds() -> None:
+    await asyncio.sleep(3)
 
 
 def main():
