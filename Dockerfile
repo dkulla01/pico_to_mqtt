@@ -1,6 +1,6 @@
-FROM python:3.12-bookworm AS builder
+FROM python:3.15-trixie AS builder
 
-RUN pip install poetry==1.7.1
+RUN pip install poetry==2.5.2
 
 ENV POETRY_NO_INTERACTION=1 \
     POETRY_VIRTUALENVS_IN_PROJECT=1 \
@@ -15,7 +15,7 @@ RUN echo "I am a placeholder readme to make poetry happy" > README.md
 RUN poetry install --without dev --no-root && rm -rf ${POETRY_CACHE_DIR}
 
 
-FROM python:3.12-slim-bookworm AS runtime
+FROM python:3.15-slim-trixie AS runtime
 
 WORKDIR /app
 ENV VIRTUAL_ENV=/app/.venv \

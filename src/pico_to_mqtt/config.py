@@ -15,8 +15,10 @@ from . import APP_NAME
 class AllConfig:
     caseta_config: CasetaConfig
     mqtt_config: MqttConfig
-    mqtt_credentials: MqttCredentials
     button_watcher_config: ButtonWatcherConfig
+    mqtt_credentials: MqttCredentials = field(
+        default=Factory(lambda: MqttCredentials())
+    )
 
 
 @ts.settings(frozen=True)
@@ -28,9 +30,14 @@ class CasetaConfig:
     caseta_bridge_refresh_interval_sec: int = 60
 
 
+def _empty_to_none(value: str | None) -> str | None:
+    # an empty env var (e.g. FOO=) means "unset"
+    return value or None
+
+
 @ts.settings(frozen=True)
 class MqttCredentials:
-    username: str
+    username: str | None = field(default=None, converter=_empty_to_none)
 
     # note: for some reason, a ts.secret(converter=ts.Secret) converter
     # creates a ts.Secret[ts.Secret[str]]
@@ -44,7 +51,13 @@ class MqttCredentials:
     # leading to a Secret[Secret[str]], which is not what we want.
     # so I'm going to file an issue, but I want to write this down while it's
     # fresh in my mind. and we'll use a plain ol' str for now
-    password: str
+    password: str | None = field(default=None, converter=_empty_to_none)
+
+    def __attrs_post_init__(self) -> None:
+        if (self.username is None) != (self.password is None):
+            raise ValueError(
+                "MQTT username and password must be set together, or both left unset"
+            )
 
 
 @ts.settings(frozen=True)
