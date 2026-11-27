@@ -18,7 +18,7 @@ def test_new_mqtt_client_without_credentials_passes_no_username_or_password(
 ):
     mock_client = mocker.patch("pico_to_mqtt.main.aiomqtt.Client")
 
-    new_mqtt_client(_MQTT_CONFIG, None)
+    new_mqtt_client(_MQTT_CONFIG, MqttCredentials())
 
     _args, kwargs = mock_client.call_args
     assert kwargs["username"] is None

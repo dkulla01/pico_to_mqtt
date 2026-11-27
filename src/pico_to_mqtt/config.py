@@ -3,7 +3,6 @@ from __future__ import annotations
 from datetime import timedelta
 from pathlib import Path
 
-import attrs
 import typed_settings as ts
 from attr import Factory, field
 
@@ -17,7 +16,9 @@ class AllConfig:
     caseta_config: CasetaConfig
     mqtt_config: MqttConfig
     button_watcher_config: ButtonWatcherConfig
-    mqtt_credentials: MqttCredentials | None = None
+    mqtt_credentials: MqttCredentials = field(
+        default=Factory(lambda: MqttCredentials())
+    )
 
 
 @ts.settings(frozen=True)
@@ -31,7 +32,7 @@ class CasetaConfig:
 
 @ts.settings(frozen=True)
 class MqttCredentials:
-    username: str
+    username: str | None = None
 
     # note: for some reason, a ts.secret(converter=ts.Secret) converter
     # creates a ts.Secret[ts.Secret[str]]
@@ -45,12 +46,13 @@ class MqttCredentials:
     # leading to a Secret[Secret[str]], which is not what we want.
     # so I'm going to file an issue, but I want to write this down while it's
     # fresh in my mind. and we'll use a plain ol' str for now
-    password: str
+    password: str | None = None
 
-
-# With postponed annotations, an optional section is structured by cattrs
-# without typed-settings resolving its field types first. Resolve them here.
-attrs.resolve_types(MqttCredentials)
+    def __attrs_post_init__(self) -> None:
+        if (self.username is None) != (self.password is None):
+            raise ValueError(
+                "MQTT username and password must be set together, or both left unset"
+            )
 
 
 @ts.settings(frozen=True)

@@ -33,10 +33,10 @@ def _load(tmp_path: Path, contents: str) -> AllConfig:
     return ts.load(AllConfig, "pico-to-mqtt", config_files=[settings_file])
 
 
-def test_config_without_mqtt_credentials_loads_with_none(tmp_path: Path):
+def test_config_without_mqtt_credentials_loads_with_empty_credentials(tmp_path: Path):
     config = _load(tmp_path, _BASE_SETTINGS)
 
-    assert config.mqtt_credentials is None
+    assert config.mqtt_credentials == MqttCredentials()
 
 
 def test_config_with_mqtt_credentials_loads_them(tmp_path: Path):

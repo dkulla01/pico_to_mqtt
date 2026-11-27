@@ -63,7 +63,7 @@ def handle_exception(loop: asyncio.AbstractEventLoop, context: Mapping[str, Any]
 
 
 def new_mqtt_client(
-    mqtt_config: MqttConfig, mqtt_credentials: Optional[MqttCredentials]
+    mqtt_config: MqttConfig, mqtt_credentials: MqttCredentials
 ) -> aiomqtt.Client:
     tls_params = aiomqtt.TLSParameters(
         ca_certs=mqtt_config.path_to_mqtt_client_ca.as_posix(),
@@ -73,8 +73,8 @@ def new_mqtt_client(
     return aiomqtt.Client(
         mqtt_config.hostname,
         mqtt_config.port,
-        username=mqtt_credentials.username if mqtt_credentials else None,
-        password=mqtt_credentials.password if mqtt_credentials else None,
+        username=mqtt_credentials.username,
+        password=mqtt_credentials.password,
         tls_params=tls_params,
     )
 
