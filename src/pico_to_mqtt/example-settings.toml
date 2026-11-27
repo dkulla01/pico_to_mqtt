@@ -3,8 +3,14 @@
 path_to_mqtt_client_cert =  "$HOME/.host-config/mqtt-ssl/client.crt"
 path_to_mqtt_client_key =  "$HOME/.host-config/mqtt-ssl/client.key"
 path_to_mqtt_client_ca =  "$HOME/.host-config/mqtt-ssl/pihome-ca.pem"
-mqtt_hostname = "mosquitto-broker.local"
-mqtt_port = 8883
+hostname = "mosquitto-broker.local"
+port = 8883
+
+# optional: only for brokers that also require a username and password.
+# set both or neither; omit this section for client-certificate-only brokers.
+# [pico-to-mqtt.mqtt-credentials]
+# username = "pico"
+# password = "change-me"
 
 [pico-to-mqtt.caseta-config]
 caseta_bridge_hostname = "caseta-bridge.local"
