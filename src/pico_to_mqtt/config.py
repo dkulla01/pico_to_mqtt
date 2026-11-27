@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import timedelta
 from pathlib import Path
 
+import attrs
 import typed_settings as ts
 from attr import Factory, field
 
@@ -15,8 +16,8 @@ from . import APP_NAME
 class AllConfig:
     caseta_config: CasetaConfig
     mqtt_config: MqttConfig
-    mqtt_credentials: MqttCredentials
     button_watcher_config: ButtonWatcherConfig
+    mqtt_credentials: MqttCredentials | None = None
 
 
 @ts.settings(frozen=True)
@@ -45,6 +46,11 @@ class MqttCredentials:
     # so I'm going to file an issue, but I want to write this down while it's
     # fresh in my mind. and we'll use a plain ol' str for now
     password: str
+
+
+# With postponed annotations, an optional section is structured by cattrs
+# without typed-settings resolving its field types first. Resolve them here.
+attrs.resolve_types(MqttCredentials)
 
 
 @ts.settings(frozen=True)
